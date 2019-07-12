@@ -1,61 +1,41 @@
-import React, { Component } from 'react';
+import React,{useState,useEffect} from 'react';
 import './App.css';
-import  CharactersList from './components/CharactersList';
-import Paganation from './components/Paganation'
+import axios from 'axios'
+import StarWarsList from './components/StarWarsList'
+import 'semantic-ui-css/semantic.min.css'
 
-class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      starwarsChars: [],
-      next:"",
-      prev:null,
-      count:0
-    };
-  }
+const App = () => {
+  // Try to think through what state you'll need for this app before starting. Then build out
+  // the state properties here.
 
-  componentDidMount() {
-  
-    this.getCharacters(`https://swapi.co/api/people/?page=`);
-  }
+  // Fetch characters from the star wars api in an effect hook. Remember, anytime you have a 
+  // side effect in a component, you want to think about which state and/or props it should
+  // sync up with, if any.
 
-  getCharacters = URL => {
-    // feel free to research what this code is doing.
-    // At a high level we are calling an API to fetch some starwars data from the open web.
-    // We then take that data and resolve it our state.
-    fetch(URL)
-      .then(res => {
-        return res.json()  ;
-      })
-      .then(data => {
-        this.setState({ starwarsChars: data.results ,
-          next: data.next,
-          prev:data.previous,
-          
-        });
-      })
-      .catch(err => {
-        throw new Error(err);
-      });
-    
-  };
 
-Count = (count)=>{
-  this.setState({ count:count+=1})
-  
+const [Data ,setData] = useState([])
+const [isLoading,setIsLoading]=useState(false)
+useEffect(
+  ()=> fetchDate(),[]
+)
+
+
+
+const fetchDate = ()=>{
+axios.get('https://swapi.co/api/people/').then(res => setData(res.data.results),setIsLoading(true)).catch(err => console.log(err))
 }
 
-  render() {
-   console.log(this.state.next)
-    return (
-      <div className="App">
-        <h1 className="Header">React Wars</h1>
-        <CharactersList  starwarsChars={this.state.starwarsChars} />
-        <Paganation getCharacters={this.getCharacters} next={this.state.next} prev={this.state.prev}/>
-        <button onClick={this.state.count} >CLICKME</button>
-      </div>
-    );
-  }
+
+
+
+  return !isLoading ? <div>loading</div> :(
+    <div className="App">
+      <h1 className="Header">React Wars</h1>
+      <div><StarWarsList Data={Data}/></div>
+
+
+    </div>
+  );
 }
 
 export default App;
